@@ -1,0 +1,21 @@
+import AuthenticateUserSession from '@modules/users/services/AuthenticateUserSession';
+import { Request, Response } from 'express';
+import UsersRepository from '../typeorm/repositories/UsersRepository';
+
+export default class SessionController {
+  public async create(request: Request, response: Response): Promise<Response> {
+    const { email, password } = request.body;
+
+    const usersRepository = new UsersRepository();
+    const authenticateUser = new AuthenticateUserSession(usersRepository);
+
+    const { user, token } = await authenticateUser.execute({
+      email,
+      password,
+    });
+
+    delete user.password;
+
+    return response.json({ user, token });
+  }
+}
